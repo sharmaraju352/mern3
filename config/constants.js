@@ -1,4 +1,5 @@
-module.exports = {
-  mongoURI: "mongodb://127.0.0.1:27017/mern3",
-  secret: "secret"
-};
+if (process.env.NODE_ENV === "production") {
+  module.exports = require("./constants_prod");
+} else {
+  module.exports = require("./constants_dev");
+}

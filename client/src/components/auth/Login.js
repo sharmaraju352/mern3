@@ -1,4 +1,8 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
+import { withRouter } from "react-router-dom";
+import { connect } from "react-redux";
+import { loginUser } from "../../actions/authActions";
 
 class Login extends Component {
   constructor() {
@@ -11,6 +15,22 @@ class Login extends Component {
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+  }
+
+  componentDidMount() {
+    if (this.props.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
+    }
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.auth.isAuthenticated) {
+      this.props.history.push("/dashboard");
+    }
+
+    if (nextProps.errors) {
+      this.setState({ errors: nextProps.errors });
+    }
   }
 
   onChange(e) {
@@ -26,9 +46,13 @@ class Login extends Component {
     };
 
     console.log(user);
+
+    this.props.loginUser(user, this.props.history);
   }
 
   render() {
+    const { errors } = this.state;
+
     return (
       <div>
         <form onSubmit={this.onSubmit}>
@@ -39,6 +63,7 @@ class Login extends Component {
             placeholder="Enter Email"
             onChange={this.onChange}
           />
+          <label>{errors.email}</label>
           <br />
           <input
             type="password"
@@ -47,6 +72,7 @@ class Login extends Component {
             placeholder="Enter Password"
             onChange={this.onChange}
           />
+          <label>{errors.password}</label>
           <br />
           <input type="submit" />
         </form>
@@ -55,4 +81,16 @@ class Login extends Component {
   }
 }
 
-export default Login;
+Login.propTypes = {
+  loginUser: PropTypes.func.isRequired,
+  auth: PropTypes.object.isRequired,
+  errors: PropTypes.object.isRequired
+};
+const mapStateToProps = state => ({
+  auth: state.auth,
+  errors: state.errors
+});
+export default connect(
+  mapStateToProps,
+  { loginUser }
+)(withRouter(Login));
